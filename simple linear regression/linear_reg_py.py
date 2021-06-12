@@ -10,7 +10,7 @@ import numpy as np
 
 !wget -O FuelConsumption.csv https://s3-api.us-geo.objectstorage.softlayer.net/cf-courses-data/CognitiveClass/ML0101ENv3/labs/FuelConsumptionCo2.csv
 
-# Reading the data in
+# Reading the data in the csv file
 
 df = pd.read_csv("FuelConsumption.csv")
  
