@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # importing necessary libraries for use
 
 import matplotlib.pyplot as plt
