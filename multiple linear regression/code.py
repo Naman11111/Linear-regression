@@ -10,7 +10,7 @@ import numpy as np
 
 !wget -O FuelConsumption.csv https://s3-api.us-geo.objectstorage.softlayer.net/cf-courses-data/CognitiveClass/ML0101ENv3/labs/FuelConsumptionCo2.csv
 
-# Reading the data in the csv file
+# Reading the data in
 
 df = pd.read_csv("FuelConsumption.csv")
  
@@ -30,11 +30,27 @@ cdf.head(9)
 viz = cdf[['CYLINDERS','ENGINESIZE','FUELCONSUMPTION_CITY','CO2EMISSIONS','FUELCONSUMPTION_COMB']]
 viz.hist()
 
-# plotting features vs the Emission, to see how linear is their relation
+# plot each of these features vs the Emission, to see how linear is their relation
+plt.scatter(cdf.FUELCONSUMPTION_COMB, cdf.CO2EMISSIONS, color='blue')
+plt.xlabel("FUELCONSUMPTION_COMB")
+plt.ylabel("Emission")
+plt.title("SCATTER PLOT")
+plt.show()
+
+plt.scatter(cdf.FUELCONSUMPTION_CITY, cdf.CO2EMISSIONS,color='red')
+plt.xlabel("FUELCONSUMPTION_CITY")
+plt.ylabel("EMISSION")
+plt.title("SCATTER PLOT")
+plt.show()
 
 plt.scatter(cdf.ENGINESIZE, cdf.CO2EMISSIONS,  color=('yellow'))
 plt.xlabel("Engine size")
 plt.ylabel("Emission")
+plt.show()
+
+plt.scatter(cdf.CYLINDERS, cdf.CO2EMISSIONS, color="green")
+plt.xlabel('Cylinder')
+plt.ylabel('Emission')
 plt.show()
 
 # Lets split our dataset into train and test sets, 80% of the entire data for training, and the 20% for testing.
@@ -46,17 +62,18 @@ print(test)
 
 '''
 Coefficient and Intercept in the simple linear regression, are the parameters of the fit line.
-Given that it is a simple linear regression, with only 2 parameters, and knowing that the parameters are the intercept and slope of the line,
+Given that it is a simple linear regression, with multiple parameters.
 sklearn can estimate them directly from our data. Notice that all of the data must be available to traverse and calculate the parameters.
 '''
-from sklearn import linear_model  #importing sklearn
+
+from sklearn import linear_model
 
 regr = linear_model.LinearRegression()
-train_x = np.asanyarray(train[['ENGINESIZE']])
-train_y = np.asanyarray(train[['CO2EMISSIONS']])
-test_x = np.asanyarray(test[['ENGINESIZE']])
-test_y = np.asanyarray(test[['CO2EMISSIONS']])
-regr.fit (train_x, train_y)
+x_train = np.asanyarray(train[['ENGINESIZE','CYLINDERS','FUELCONSUMPTION_COMB']])
+y_train = np.asanyarray(train[['CO2EMISSIONS']])
+x_test = np.asanyarray(train[['ENGINESIZE','CYLINDERS','FUELCONSUMPTION_COMB']])
+y_test = np.asanyarray(train[['CO2EMISSIONS']])
+regr.fit(x_train,y_train)
 
 # The coefficients
 
@@ -64,16 +81,20 @@ print ('Coefficients: ', regr.coef_)
 print ('Intercept: ',regr.intercept_)
 
 # Plot outputs
-# CO2EMISSION / Y = Intercept + cofficient*ENGINESIZE
+# CO2EMISSION / Y = Intercept + cofficient1*ENGINESIZE + cofficient2*CYLINDERS + cofficient3*FUELCONSUMPTION_COMB
 
-plt.scatter(train.ENGINESIZE, train.CO2EMISSIONS,  color='blue')
-plt.plot(train_x, regr.coef_[0][0]*train_x + regr.intercept_[0], '-r')
-plt.xlabel("Engine size")
+plt.scatter(train.ENGINESIZE, y_train,  color='blue')
+plt.scatter(train.CYLINDERS, y_train, color='green')
+plt.scatter(train.FUELCONSUMPTION_COMB, y_train, color='orange')
+plt.plot(x_train, regr.coef_[0][0]*x_train+ regr.intercept_[0], '-r')
+plt.plot(x_train, regr.coef_[0][1]*x_train+ regr.intercept_[0], 'black')
+plt.plot(x_train, regr.coef_[0][2]*x_train+ regr.intercept_[0], 'purple')
+plt.xlabel("Engine size, Cylinders, Fuelconsumption")
 plt.ylabel("Emission")
 
 #predict actual values
 
-pred = regr.predict(test_x) # predicts the corresponding values of y
+pred = regr.predict(x_test) # predicts the corresponding values of y
 print(pred)
 
 '''
@@ -92,9 +113,10 @@ There are different model evaluation metrics, lets use MSE here to calculate the
 
         R-squared is not error, but is a popular metric for accuracy of your model. It represents how close the data are to the fitted regression line. The higher the R-squared, the better the model fits your data. Best possible score is 1.0 and it can be negative (because the model can be arbitrarily worse)
 '''
+
 from sklearn.metrics import r2_score
 
-print("Mean absolute error: %.2f" % np.mean(np.absolute(pred - test_y)))
-print("Residual sum of squares (MSE): %.2f" % np.mean((pred - test_y) ** 2))
-print("R2-score: %.2f" % r2_score(pred , test_y) )
-print("Regresion score: %.2f" % (regr.score(test_x,test_y)*100))
+print("Mean absolute error: %.2f" % np.mean(np.absolute(pred - y_test)))
+print("Residual sum of squares (MSE): %.2f" % np.mean((pred - y_test) ** 2))
+print("R2-score: %.2f" % r2_score(pred , y_test) )
+print("Regresion score: %.2f" % (regr.score(x_test,y_test)*100))
